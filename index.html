@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2f6b3a">
+  <meta name="description" content="Biomix: monte um bioma com plantas, presas e predadores e veja quantos dias ele sobrevive.">
+  <title>Biomix</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main id="app">
+    <!-- Tela inicial: escolha do tamanho da grade -->
+    <section id="tela-inicio" class="tela ativa" aria-labelledby="titulo">
+      <div class="inicio">
+        <div class="logo" aria-hidden="true">
+          <canvas class="icone grande" data-icone="verdelim"></canvas>
+          <canvas class="icone grande" data-icone="pulim"></canvas>
+          <canvas class="icone grande" data-icone="rondor"></canvas>
+        </div>
+        <h1 id="titulo">Biomix</h1>
+        <p class="subtitulo">Monte o seu bioma e veja quantos dias ele sobrevive.</p>
+
+        <h2>Tamanho do bioma</h2>
+        <div id="tamanhos" class="tamanhos"></div>
+
+        <details class="como-jogar">
+          <summary>Como jogar</summary>
+          <ul>
+            <li><strong>Verdelim</strong> é a planta. Ela não anda e não se reproduz sozinha: brota das sementes que o Rondor espalha. Com o tempo, murcha e morre.</li>
+            <li><strong>Pulim</strong> come Verdelins. Brotos e plantas murchas alimentam menos.</li>
+            <li><strong>Rondor</strong> caça Pulins. Ao passar por um Verdelim adulto, leva uma semente por 1 a 6 casas e ela brota onde cair.</li>
+            <li>Dois adultos da mesma espécie que se encontram botam um ovo. Filhotes precisam crescer antes de se reproduzir.</li>
+            <li>Quem passa fome por muito tempo morre. O bioma acaba quando não sobra nenhum ser vivo.</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <!-- Tela do jogo: montagem e simulação -->
+    <section id="tela-jogo" class="tela" aria-label="Bioma">
+      <header class="hud">
+        <button id="btn-voltar" class="btn-icone" type="button" aria-label="Voltar ao início">&#8592;</button>
+        <div class="dia" aria-live="polite">
+          <span class="rotulo">Dia</span>
+          <strong id="contador-dias">0</strong>
+        </div>
+        <ul class="populacao" aria-label="População">
+          <li><canvas class="icone" data-icone="verdelim"></canvas><span id="pop-verdelim">0</span></li>
+          <li><canvas class="icone" data-icone="pulim"></canvas><span id="pop-pulim">0</span></li>
+          <li><canvas class="icone" data-icone="rondor"></canvas><span id="pop-rondor">0</span></li>
+        </ul>
+      </header>
+
+      <div class="detalhe" id="detalhe-populacao"></div>
+
+      <div id="area-grade" class="area-grade">
+        <canvas id="grade" aria-label="Grade do bioma"></canvas>
+      </div>
+
+      <footer class="barra">
+        <div id="barra-montagem" class="painel">
+          <div class="ferramentas" role="radiogroup" aria-label="Ferramenta">
+            <button type="button" class="ferramenta ativa" data-ferramenta="verdelim" role="radio" aria-checked="true">
+              <canvas class="icone" data-icone="verdelim"></canvas><span>Verdelim</span>
+            </button>
+            <button type="button" class="ferramenta" data-ferramenta="pulim" role="radio" aria-checked="false">
+              <canvas class="icone" data-icone="pulim"></canvas><span>Pulim</span>
+            </button>
+            <button type="button" class="ferramenta" data-ferramenta="rondor" role="radio" aria-checked="false">
+              <canvas class="icone" data-icone="rondor"></canvas><span>Rondor</span>
+            </button>
+            <button type="button" class="ferramenta" data-ferramenta="borracha" role="radio" aria-checked="false">
+              <span class="icone-texto" aria-hidden="true">&#9003;</span><span>Apagar</span>
+            </button>
+          </div>
+          <div class="acoes">
+            <button id="btn-aleatorio" type="button" class="btn secundario">Aleatório</button>
+            <button id="btn-limpar" type="button" class="btn secundario">Limpar</button>
+            <button id="btn-iniciar" type="button" class="btn primario">Iniciar</button>
+          </div>
+        </div>
+
+        <div id="barra-jogo" class="painel" hidden>
+          <div class="acoes">
+            <button id="btn-pausa" type="button" class="btn secundario">Pausar</button>
+            <button id="btn-velocidade" type="button" class="btn secundario">1×</button>
+            <button id="btn-encerrar" type="button" class="btn perigo">Encerrar</button>
+          </div>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <dialog id="dlg-aleatorio">
+    <form method="dialog" class="dialogo">
+      <h2>Distribuir aleatoriamente</h2>
+      <p>Quantos de cada espécie adicionar em posições aleatórias?</p>
+      <label><canvas class="icone" data-icone="verdelim"></canvas>Verdelim <input type="number" name="verdelim" min="0" inputmode="numeric"></label>
+      <label><canvas class="icone" data-icone="pulim"></canvas>Pulim <input type="number" name="pulim" min="0" inputmode="numeric"></label>
+      <label><canvas class="icone" data-icone="rondor"></canvas>Rondor <input type="number" name="rondor" min="0" inputmode="numeric"></label>
+      <div class="acoes">
+        <button value="cancelar" class="btn secundario" formnovalidate>Cancelar</button>
+        <button value="ok" class="btn primario">Distribuir</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-fim">
+    <div class="dialogo">
+      <h2 id="fim-titulo">O bioma acabou</h2>
+      <p class="resultado"><strong id="fim-dias">0</strong> <span id="fim-dias-rotulo">dias</span></p>
+      <p id="fim-recorde" class="recorde"></p>
+      <ul class="picos">
+        <li><canvas class="icone" data-icone="verdelim"></canvas>pico <strong id="pico-verdelim">0</strong></li>
+        <li><canvas class="icone" data-icone="pulim"></canvas>pico <strong id="pico-pulim">0</strong></li>
+        <li><canvas class="icone" data-icone="rondor"></canvas>pico <strong id="pico-rondor">0</strong></li>
+      </ul>
+      <div class="acoes">
+        <button id="btn-repetir" type="button" class="btn primario">Jogar de novo</button>
+        <button id="btn-editar" type="button" class="btn secundario">Editar bioma</button>
+        <button id="btn-menu" type="button" class="btn secundario">Início</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

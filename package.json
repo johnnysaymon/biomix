@@ -1,0 +1,9 @@
+{
+  "name": "biomix",
+  "private": true,
+  "type": "module",
+  "description": "Jogo web de sobrevivência de um bioma (HTML, CSS e JavaScript puros).",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}

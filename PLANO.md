@@ -101,28 +101,9 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 
 ## 4. Parâmetros configuráveis (`config.js`)
 
-Todas as regras numéricas ficam centralizadas para facilitar o balanceamento e a adição de novas regras (valores iniciais, a ajustar na etapa de balanceamento):
+Todas as regras numéricas ficam centralizadas para facilitar o balanceamento e a adição de novas regras.
 
-```js
-export const CONFIG = {
-  TAMANHOS_GRADE: [
-    { nome: 'Pequena', lado: 8 },
-    { nome: 'Média',   lado: 12 },
-    { nome: 'Grande',  lado: 16 },
-    { nome: 'Enorme',  lado: 20 },
-  ],
-  TICKS_POR_DIA: 10,
-  VIZINHANCA: 8,                       // 4 ou 8
-  SEMENTE: { ALCANCE_MIN: 1, ALCANCE_MAX: 6 },
-  VERDELIM: {
-    TEMPO_CRESCIMENTO: 20, TEMPO_VIDA: 80, TEMPO_MURCHA: 20,
-    NUTRICAO: { ADULTA: 1.0, MURCHANDO: 0.5, BROTO: 0.4 }  // fração da fome removida ao ser comida
-  },
-  PULIM:  { LIMITE_FOME: 30, RECARGA_REPRODUCAO: 20, TICKS_PARA_CHOCAR: 15, TEMPO_MATURIDADE: 25 },
-  RONDOR: { LIMITE_FOME: 45, RECARGA_REPRODUCAO: 35, TICKS_PARA_CHOCAR: 25, TEMPO_MATURIDADE: 40 },
-  SEMENTE_ALEATORIA: null              // semente do gerador aleatório (null = aleatória)
-};
-```
+Os valores atualizados ficam em [`js/config.js`](js/config.js). Grupos: `TAMANHOS_GRADE`, `TICKS_POR_DIA`, `TICK_MS`, `VELOCIDADES`, `VIZINHANCA`, `SEMENTE` (alcance 1–6), `VERDELIM` (crescimento, vida, murcha, nutrição por fase), `PULIM` e `RONDOR` (limite de fome, recarga de reprodução, tempo para chocar, maturidade; `RONDOR.FOME_PARA_CACAR`).
 
 ## 5. Experiência mobile first
 
@@ -195,12 +176,30 @@ biomix/
 - Rondor que morre carregando semente faz ela **brotar onde morreu**.
 - Brotos e plantas murchando **podem ser comidos**, mas alimentam menos.
 
+Detalhes definidos na implementação (fáceis de mudar):
+
+- Na montagem, cada célula aceita no máximo **um de cada espécie**; tocar onde já existe a espécie a remove.
+- Cada Rondor preda **no máximo um Pulim por tick**; se vários Pulins estão numa célula com planta, **o mais faminto come**.
+- O Rondor pega semente ao **entrar** numa célula com Verdelim adulta (parado não pega); cada casa andada consome o alcance.
+
 ## 9. Questões em aberto
 
 Nenhuma no momento. A dependência circular (só o Rondor espalha sementes) evita o ciclo infinito Pulim + plantas: sem Rondors, as plantas não se renovam, murcham e o bioma acaba colapsando.
 
-## 10. Próximos passos
+## 10. Andamento
 
-- Responder às questões em aberto.
-- Receber eventuais regras adicionais e incorporá-las em `config.js` / `simulacao.js`.
-- Iniciar pela Etapa 0.
+**Primeira versão jogável implementada** (etapas 0 a 5 e uma primeira versão da etapa 6):
+
+- Simulação completa seguindo a ordem da seção 3.8, coberta por testes (`npm test`).
+- Tela inicial com tamanhos de grade e recordes; montagem por toque/arraste, borracha, distribuição aleatória; montagem salva por tamanho.
+- Partida com contador de dias, pausa, velocidades 1×/2×/4×, tela final com picos de população e recorde.
+- Personagens originais desenhados no canvas (broto/adulta/murchando, filhotes, ovos que tremem antes de chocar, semente no Rondor, animais famintos piscando) e efeitos visuais simples para comer, predar, nascer, brotar e morrer.
+
+**Ajustes feitos no balanceamento** (valores em `config.js`): com os números iniciais do plano o bioma colapsava em ~20 dias; os valores atuais levam a ~40–60 dias com distribuições aleatórias.
+
+**Observação de balanceamento:** a principal causa de colapso é o Rondor predar todo Pulim que encontra, mesmo sem fome. Existe a opção `RONDOR.FOME_PARA_CACAR` (desligada = regra atual). Em simulações, com valor 40 o bioma passou a se sustentar por milhares de dias. Fica como sugestão de regra a decidir.
+
+**Pendente:**
+
+- Zoom com pinça nas grades grandes (etapa 1).
+- Animações mais ricas (etapa 6), gráfico de população (etapa 7), PWA/offline e tutorial (etapa 8).
