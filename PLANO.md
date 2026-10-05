@@ -9,7 +9,7 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 
 - Uma **área quadrada** (matriz N×N) representa o bioma. O jogador escolhe o tamanho entre opções pré-definidas.
 - O jogador escolhe **quantos** personagens de cada espécie colocar (sem limite) e **em quais células**.
-- Ao tocar em **Iniciar**, a simulação roda sozinha: os animais se movem aleatoriamente, comem, espalham sementes, se reproduzem (ovos), crescem e morrem; as plantas brotam, envelhecem e murcham.
+- Ao tocar em **Iniciar**, a simulação roda sozinha: os animais se movem aleatoriamente, comem, se reproduzem (ovos), crescem e morrem; o predador espalha sementes; as plantas brotam, envelhecem e murcham.
 - Um contador mostra **quantos dias** o bioma sobreviveu. Quando não sobra **nenhum ser vivo**, o jogo termina e o recorde é salvo.
 
 ## 2. Personagens (fictícios, com referência indireta)
@@ -23,7 +23,8 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 - Arte própria desenhada em **SVG inline** ou desenhada no **Canvas** (sem imagens de terceiros), garantindo que os personagens sejam originais.
 - Estados visuais:
   - **Verdelim**: broto → adulta → murchando (folhas caídas, cor amarelada) → morta.
-  - **Pulim / Rondor**: ovo → filhote (menor, traço mais arredondado) → adulto; indicador de fome (cor esmaecida); indicador de **semente carregada** (pontinho verde no corpo).
+  - **Pulim / Rondor**: ovo → filhote (menor, traço mais arredondado) → adulto; indicador de fome (cor esmaecida).
+  - **Rondor**: indicador de **semente carregada** (pontinho verde no corpo/cauda).
 
 ## 3. Regras do jogo
 
@@ -40,23 +41,27 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 ### 3.3 Encontros (quando dois personagens ficam na mesma célula)
 | Encontro | Resultado |
 |---|---|
-| Pulim + Verdelim | Pulim **come** a planta → planta some, fome do Pulim diminui conforme a fase da planta (ver 3.5) e, se for adulta, ele pega semente (ver 3.4) |
+| Pulim + Verdelim | Pulim **come** a planta → planta some, fome do Pulim diminui conforme a fase da planta (ver 3.5). Pulim **não** pega semente |
 | Rondor + Pulim | Rondor **preda** o Pulim (filhote ou adulto) → Pulim morre, fome do Rondor zera |
 | Pulim adulto + Pulim adulto | Geram um **ovo de Pulim** numa célula vizinha livre |
 | Rondor adulto + Rondor adulto | Geram um **ovo de Rondor** numa célula vizinha livre |
-| Rondor + Verdelim | Rondor não come, mas **pega semente** (ver 3.4) |
+| Rondor + Verdelim | Rondor não come, mas **pega semente** se a planta for adulta (ver 3.4) |
 | Qualquer animal + ovo | **Nada acontece** — ovos não podem ser comidos |
 
 - "Encontrar" = **ocupar a mesma célula** após o movimento.
 - Só **adultos** se reproduzem. Após gerar um ovo, cada animal entra em **recarga de reprodução**.
 
 ### 3.4 Sementes e brotamento (plantas não se reproduzem sozinhas)
-- Quando um animal (Pulim **ou** Rondor) **passa por uma célula com Verdelim adulta**, ele fica com uma **semente**, comendo a planta ou não.
+- **Apenas o Rondor espalha sementes.** Isso fecha um ciclo de dependência entre as três espécies:
+  - Verdelim depende do **Rondor** para se espalhar;
+  - Pulim depende do **Verdelim** para comer;
+  - Rondor depende do **Pulim** para comer.
+- Quando um Rondor (filhote ou adulto) **passa por uma célula com Verdelim adulta**, ele fica com uma **semente**. A planta continua no lugar.
 - A semente é carregada por um número de casas **sorteado entre 1 e 6** no momento em que é pega.
 - Ao completar o alcance, a semente cai na célula atual e **brota um novo Verdelim (broto)**.
 - **Célula ocupada** (já tem planta ou ovo): a semente vai para uma **célula vizinha livre** sorteada. Se não houver nenhuma vizinha livre, a semente se perde.
-- **Animal morre carregando semente** (fome ou predação): a semente **brota na célula onde ele morreu** (com a mesma regra de célula ocupada → vizinha livre).
-- Cada animal carrega **uma semente por vez**; enquanto carrega, não pega outra.
+- **Rondor morre carregando semente** (de fome): a semente **brota na célula onde ele morreu** (com a mesma regra de célula ocupada → vizinha livre).
+- Cada Rondor carrega **uma semente por vez**; enquanto carrega, não pega outra.
 - Brotos e plantas murchando não fornecem semente (só plantas adultas).
 
 ### 3.5 Ciclo de vida das plantas
@@ -73,25 +78,25 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 
 ### 3.6 Ciclo de vida dos animais
 - **Ovo** → choca após `TICKS_PARA_CHOCAR`, nascendo um **filhote**.
-- **Filhote** → move-se, come, sente fome, pode ser predado e carrega sementes, mas **não se reproduz**. Após `TEMPO_MATURIDADE` vira **adulto**.
+- **Filhote** → move-se, come, sente fome, pode ser predado (Pulim) e carrega sementes (Rondor), mas **não se reproduz**. Após `TEMPO_MATURIDADE` vira **adulto**.
 - **Fome**: contador que aumenta 1 por tick e zera ao comer. Ao atingir `LIMITE_FOME` (diferente para Pulim e Rondor), o animal **morre**.
 
 ### 3.7 Fim de jogo
 - O bioma só **morre quando não sobra nenhum ser vivo** na grade.
-- Contam como vivos: Verdelim (qualquer fase), Pulim, Rondor e **ovos**. Sementes carregadas não contam sozinhas (morrem com o animal).
+- Contam como vivos: Verdelim (qualquer fase), Pulim, Rondor e **ovos**. Sementes carregadas pelos Rondors não contam como seres vivos (mas brotam quando o Rondor morre).
 - Tela final: dias sobrevividos, população máxima de cada espécie, recorde pessoal (por tamanho de grade).
 
 ### 3.8 Ordem de resolução de cada tick (determinística)
 1. Incrementar fome e idade; decrementar recargas, contagem dos ovos e alcance das sementes.
 2. **Mover** animais (ordem aleatória a cada tick para não favorecer ninguém).
 3. **Plantar sementes** cujo alcance terminou (gera brotos; célula ocupada → vizinha livre).
-4. **Pegar sementes** ao entrar em célula com Verdelim adulta.
+4. **Pegar sementes**: Rondors que entram em célula com Verdelim adulta.
 5. Resolver **predação** (Rondor × Pulim).
 6. Resolver **alimentação** (Pulim × Verdelim).
 7. Resolver **reprodução** (adultos, gera ovos).
 8. **Chocar** ovos prontos (nascem filhotes).
 9. Avançar **ciclo das plantas** (broto → adulta → murchando → morta) e **maturidade** dos filhotes.
-10. Remover mortos por fome (sementes que carregavam brotam no local; o mesmo vale para Pulins predados no passo 5).
+10. Remover mortos por fome (sementes carregadas por Rondors mortos brotam no local).
 11. Verificar fim de jogo e atualizar contador de dias.
 
 ## 4. Parâmetros configuráveis (`config.js`)
@@ -170,7 +175,7 @@ biomix/
 | **1. Montagem** | Barra de ferramentas, colocar/remover personagens, contadores, distribuição aleatória, zoom | Usuário monta o bioma só com toques |
 | **2. Simulação núcleo** | `tick()` com movimento, alimentação, predação, fome e morte | Testes das regras passando |
 | **3. Ciclos de vida** | Ovos, filhotes, maturidade, reprodução com recarga; plantas broto → adulta → murcha → morte | Testes de cada transição passando |
-| **4. Sementes** | Pegar semente, carregar por N casas, brotar | Plantas reaparecem pelos caminhos dos animais |
+| **4. Sementes** | Rondor pega semente, carrega por N casas, brota | Plantas reaparecem pelos caminhos dos Rondors |
 | **5. Tempo e placar** | Contador de dias, velocidade, pausa, fim de jogo (nenhum ser vivo), recordes por grade | Partida completa do início ao fim |
 | **6. Arte e animação** | Sprites originais (todas as fases), indicador de semente, animações de comer/nascer/brotar/murchar/morrer | Fases distinguíveis em telas pequenas |
 | **7. Balanceamento** | Ajuste de parâmetros, gráfico simples de população por dia (opcional) | Configurações razoáveis duram vários dias |
@@ -178,7 +183,7 @@ biomix/
 
 ## 8. Decisões tomadas
 
-- Plantas **não se reproduzem**; brotam a partir de **sementes carregadas pelos animais** (Pulim e Rondor), comendo a planta ou não.
+- Plantas **não se reproduzem**; brotam a partir de **sementes carregadas apenas pelos Rondors**, formando uma dependência circular planta → presa → predador → planta.
 - Plantas têm **tempo de vida**: murcham e morrem.
 - **Ovos não podem ser comidos.**
 - O bioma só morre quando **não sobra nenhum ser vivo**.
@@ -187,12 +192,12 @@ biomix/
 - **Tamanho da grade** escolhido entre opções pré-definidas.
 - Semente carregada por **1 a 6 casas** (sorteado).
 - Semente em célula ocupada vai para uma **célula vizinha livre**.
-- Animal que morre carregando semente faz ela **brotar onde morreu**.
+- Rondor que morre carregando semente faz ela **brotar onde morreu**.
 - Brotos e plantas murchando **podem ser comidos**, mas alimentam menos.
 
 ## 9. Questões em aberto
 
-1. **Pulim sozinho com plantas** pode criar um ciclo infinito (come → espalha semente → planta brota). Deseja alguma regra de dificuldade crescente (ex.: estações, seca) para evitar partidas sem fim?
+Nenhuma no momento. A dependência circular (só o Rondor espalha sementes) evita o ciclo infinito Pulim + plantas: sem Rondors, as plantas não se renovam, murcham e o bioma acaba colapsando.
 
 ## 10. Próximos passos
 
