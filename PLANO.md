@@ -40,7 +40,7 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 ### 3.3 Encontros (quando dois personagens ficam na mesma célula)
 | Encontro | Resultado |
 |---|---|
-| Pulim + Verdelim | Pulim **come** a planta → planta some, fome do Pulim zera (e ele pega semente — ver 3.4) |
+| Pulim + Verdelim | Pulim **come** a planta → planta some, fome do Pulim diminui conforme a fase da planta (ver 3.5) e, se for adulta, ele pega semente (ver 3.4) |
 | Rondor + Pulim | Rondor **preda** o Pulim (filhote ou adulto) → Pulim morre, fome do Rondor zera |
 | Pulim adulto + Pulim adulto | Geram um **ovo de Pulim** numa célula vizinha livre |
 | Rondor adulto + Rondor adulto | Geram um **ovo de Rondor** numa célula vizinha livre |
@@ -52,16 +52,24 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 
 ### 3.4 Sementes e brotamento (plantas não se reproduzem sozinhas)
 - Quando um animal (Pulim **ou** Rondor) **passa por uma célula com Verdelim adulta**, ele fica com uma **semente**, comendo a planta ou não.
-- A semente é carregada por **`ALCANCE_SEMENTE` casas** (ex.: sorteado entre 3 e 6 movimentos).
-- Ao completar o alcance, a semente cai na célula atual e **brota um novo Verdelim (broto)**, desde que a célula esteja livre de planta e de ovo. Se estiver ocupada, a semente se perde.
+- A semente é carregada por um número de casas **sorteado entre 1 e 6** no momento em que é pega.
+- Ao completar o alcance, a semente cai na célula atual e **brota um novo Verdelim (broto)**.
+- **Célula ocupada** (já tem planta ou ovo): a semente vai para uma **célula vizinha livre** sorteada. Se não houver nenhuma vizinha livre, a semente se perde.
+- **Animal morre carregando semente** (fome ou predação): a semente **brota na célula onde ele morreu** (com a mesma regra de célula ocupada → vizinha livre).
 - Cada animal carrega **uma semente por vez**; enquanto carrega, não pega outra.
-- Brotos não fornecem semente (só plantas adultas).
+- Brotos e plantas murchando não fornecem semente (só plantas adultas).
 
 ### 3.5 Ciclo de vida das plantas
 - **Broto** → após `TEMPO_CRESCIMENTO` vira **adulta**.
 - **Adulta** → após `TEMPO_VIDA` começa a **murchar**.
 - **Murchando** → após `TEMPO_MURCHA` **morre** e some da grade.
-- Plantas murchando ainda podem ser comidas (definição a confirmar).
+- **Todas as fases podem ser comidas**, mas brotos e plantas murchando (no chão) alimentam menos: em vez de zerar a fome, reduzem apenas uma fração dela.
+
+| Fase comida | Efeito na fome do Pulim (valor inicial, ajustável) |
+|---|---|
+| Adulta | zera a fome (100%) |
+| Murchando | reduz 50% da fome atual |
+| Broto | reduz 40% da fome atual |
 
 ### 3.6 Ciclo de vida dos animais
 - **Ovo** → choca após `TICKS_PARA_CHOCAR`, nascendo um **filhote**.
@@ -76,14 +84,14 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 ### 3.8 Ordem de resolução de cada tick (determinística)
 1. Incrementar fome e idade; decrementar recargas, contagem dos ovos e alcance das sementes.
 2. **Mover** animais (ordem aleatória a cada tick para não favorecer ninguém).
-3. **Plantar sementes** cujo alcance terminou (gera brotos).
+3. **Plantar sementes** cujo alcance terminou (gera brotos; célula ocupada → vizinha livre).
 4. **Pegar sementes** ao entrar em célula com Verdelim adulta.
 5. Resolver **predação** (Rondor × Pulim).
 6. Resolver **alimentação** (Pulim × Verdelim).
 7. Resolver **reprodução** (adultos, gera ovos).
 8. **Chocar** ovos prontos (nascem filhotes).
 9. Avançar **ciclo das plantas** (broto → adulta → murchando → morta) e **maturidade** dos filhotes.
-10. Remover mortos por fome.
+10. Remover mortos por fome (sementes que carregavam brotam no local; o mesmo vale para Pulins predados no passo 5).
 11. Verificar fim de jogo e atualizar contador de dias.
 
 ## 4. Parâmetros configuráveis (`config.js`)
@@ -100,8 +108,11 @@ export const CONFIG = {
   ],
   TICKS_POR_DIA: 10,
   VIZINHANCA: 8,                       // 4 ou 8
-  SEMENTE: { ALCANCE_MIN: 3, ALCANCE_MAX: 6 },
-  VERDELIM: { TEMPO_CRESCIMENTO: 20, TEMPO_VIDA: 80, TEMPO_MURCHA: 20 },
+  SEMENTE: { ALCANCE_MIN: 1, ALCANCE_MAX: 6 },
+  VERDELIM: {
+    TEMPO_CRESCIMENTO: 20, TEMPO_VIDA: 80, TEMPO_MURCHA: 20,
+    NUTRICAO: { ADULTA: 1.0, MURCHANDO: 0.5, BROTO: 0.4 }  // fração da fome removida ao ser comida
+  },
   PULIM:  { LIMITE_FOME: 30, RECARGA_REPRODUCAO: 20, TICKS_PARA_CHOCAR: 15, TEMPO_MATURIDADE: 25 },
   RONDOR: { LIMITE_FOME: 45, RECARGA_REPRODUCAO: 35, TICKS_PARA_CHOCAR: 25, TEMPO_MATURIDADE: 40 },
   SEMENTE_ALEATORIA: null              // semente do gerador aleatório (null = aleatória)
@@ -174,14 +185,14 @@ biomix/
 - **Filhotes** precisam de um tempo até poderem se reproduzir.
 - **Sem limite** de personagens na montagem.
 - **Tamanho da grade** escolhido entre opções pré-definidas.
+- Semente carregada por **1 a 6 casas** (sorteado).
+- Semente em célula ocupada vai para uma **célula vizinha livre**.
+- Animal que morre carregando semente faz ela **brotar onde morreu**.
+- Brotos e plantas murchando **podem ser comidos**, mas alimentam menos.
 
 ## 9. Questões em aberto
 
-1. **Alcance da semente**: fixo (ex.: sempre 4 casas) ou sorteado num intervalo? Premissa: sorteado entre 3 e 6.
-2. **Semente em célula ocupada**: se a célula onde cai já tem planta ou ovo, a semente se perde (premissa) ou tenta uma célula vizinha?
-3. **Animal morre carregando semente**: a semente se perde (premissa) ou cai e brota ali?
-4. **Brotos e plantas murchando** podem ser comidos? Premissa: broto e murcha podem ser comidos; só a adulta fornece semente.
-5. **Pulim sozinho com plantas** pode criar um ciclo infinito (come → espalha semente → planta brota). Deseja alguma regra de dificuldade crescente (ex.: estações, seca) para evitar partidas sem fim?
+1. **Pulim sozinho com plantas** pode criar um ciclo infinito (come → espalha semente → planta brota). Deseja alguma regra de dificuldade crescente (ex.: estações, seca) para evitar partidas sem fim?
 
 ## 10. Próximos passos
 
