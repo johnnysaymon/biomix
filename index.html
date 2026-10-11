@@ -9,7 +9,7 @@
   <script>
     // Versão do jogo: entra na URL de cada arquivo (?v=) para o navegador não usar cópias antigas do cache.
     // Aumente a VERSAO a cada alteração publicada e mantenha MODULOS igual aos arquivos de js/ (ver CLAUDE.md).
-    const VERSAO = '1.1.0';
+    const VERSAO = '1.1.1';
     const MODULOS = [
       'armazenamento', 'config', 'entidades', 'entrada', 'grade', 'main', 'renderizador', 'rng', 'simulacao',
     ];
@@ -119,6 +119,17 @@
       <div class="acoes">
         <button value="cancelar" class="btn secundario" formnovalidate>Cancelar</button>
         <button value="ok" class="btn primario">Distribuir</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-confirmar">
+    <form method="dialog" class="dialogo">
+      <h2 id="confirmar-titulo"></h2>
+      <p id="confirmar-mensagem"></p>
+      <div class="acoes">
+        <button value="cancelar" class="btn secundario">Cancelar</button>
+        <button id="confirmar-ok" value="ok" class="btn perigo"></button>
       </div>
     </form>
   </dialog>

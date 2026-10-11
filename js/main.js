@@ -27,6 +27,7 @@ const ui = {
   btnVelocidade: $('#btn-velocidade'),
   dlgAleatorio: $('#dlg-aleatorio'),
   dlgFim: $('#dlg-fim'),
+  dlgConfirmar: $('#dlg-confirmar'),
 };
 
 const jogo = {
@@ -219,6 +220,28 @@ function quadro(agora) {
   requestAnimationFrame(quadro);
 }
 
+// ---------- Confirmação ----------
+
+// Diálogo de confirmação no visual do jogo, no lugar do confirm() do navegador. Como o confirm() bloqueava
+// a página, a partida fica pausada enquanto o diálogo está aberto e volta a rodar se o jogador cancelar.
+function confirmar({ titulo, mensagem, textoOk }) {
+  const dlg = ui.dlgConfirmar;
+  $('#confirmar-titulo').textContent = titulo;
+  $('#confirmar-mensagem').textContent = mensagem;
+  $('#confirmar-ok').textContent = textoOk;
+  const retomar = jogo.modo === 'jogando';
+  if (retomar) definirModo('pausado');
+  dlg.returnValue = '';
+  dlg.showModal();
+  return new Promise((resolve) => {
+    dlg.addEventListener('close', () => {
+      const ok = dlg.returnValue === 'ok';
+      if (!ok && retomar && jogo.modo === 'pausado') definirModo('jogando');
+      resolve(ok);
+    }, { once: true });
+  });
+}
+
 // ---------- Eventos ----------
 
 function ligarEventos() {
@@ -227,14 +250,23 @@ function ligarEventos() {
   }
   ligarEntrada(ui.canvas, renderizador, () => jogo.lado, aoTocarCelula);
 
-  $('#btn-voltar').addEventListener('click', () => {
+  $('#btn-voltar').addEventListener('click', async () => {
     const emAndamento = jogo.modo === 'jogando' || jogo.modo === 'pausado';
-    if (emAndamento && !confirm('Sair da partida atual?')) return;
+    if (emAndamento && !await confirmar({
+      titulo: 'Sair da partida?',
+      mensagem: 'A partida atual será perdida e você voltará ao início.',
+      textoOk: 'Sair',
+    })) return;
     irParaInicio();
   });
 
-  $('#btn-limpar').addEventListener('click', () => {
-    if (contarVivos(jogo.estado) && confirm('Limpar todo o bioma?')) {
+  $('#btn-limpar').addEventListener('click', async () => {
+    if (!contarVivos(jogo.estado)) return;
+    if (await confirmar({
+      titulo: 'Limpar o bioma?',
+      mensagem: 'Todos os personagens colocados serão removidos.',
+      textoOk: 'Limpar',
+    })) {
       jogo.estado = criarEstado(jogo.lado);
       atualizarHud();
     }
@@ -270,8 +302,12 @@ function ligarEventos() {
     jogo.velocidade = (jogo.velocidade + 1) % CONFIG.VELOCIDADES.length;
     ui.btnVelocidade.textContent = `${CONFIG.VELOCIDADES[jogo.velocidade]}×`;
   });
-  $('#btn-encerrar').addEventListener('click', () => {
-    if (confirm('Encerrar a partida e voltar para a montagem?')) abrirMontagem(jogo.lado, jogo.montagem);
+  $('#btn-encerrar').addEventListener('click', async () => {
+    if (await confirmar({
+      titulo: 'Encerrar a partida?',
+      mensagem: 'A simulação para e você volta para a montagem do bioma.',
+      textoOk: 'Encerrar',
+    })) abrirMontagem(jogo.lado, jogo.montagem);
   });
 
   $('#btn-repetir').addEventListener('click', () => {
