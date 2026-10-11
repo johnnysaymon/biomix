@@ -93,21 +93,37 @@ test('animais andam no máximo uma casa por tick e não saem da grade', () => {
 
 test('Rondor preda o Pulim na mesma célula e zera a fome', () => {
   const e = criarEstado(4);
-  const r = animal(e, 'rondor', 1, 1, { fome: 30 });
+  const r = animal(e, 'rondor', 1, 1, { fome: CONFIG.RONDOR.FOME_PARA_COMER });
   animal(e, 'pulim', 1, 1);
   tick(e, rngParado());
   assert.equal(e.animais.filter((a) => a.especie === 'pulim').length, 0);
   assert.equal(r.fome, 0);
 });
 
-test('com FOME_PARA_CACAR, Rondor saciado não preda', () => {
-  const c = cfg();
-  c.RONDOR.FOME_PARA_CACAR = 40;
-  const e = criarEstado(4, c);
-  animal(e, 'rondor', 1, 1, { fome: 5 });
+test('Rondor saciado não preda', () => {
+  const e = criarEstado(4);
+  animal(e, 'rondor', 1, 1, { fome: CONFIG.RONDOR.FOME_PARA_COMER - 2 }); // vira FOME_PARA_COMER - 1 no tick
   animal(e, 'pulim', 1, 1);
   tick(e, rngParado());
   assert.equal(e.animais.filter((a) => a.especie === 'pulim').length, 1);
+});
+
+test('Pulim saciado não come a planta; com FOME_PARA_COMER 0 come sempre', () => {
+  const idadeAdulta = CONFIG.VERDELIM.TEMPO_CRESCIMENTO + 5;
+  const e = criarEstado(4);
+  const p = animal(e, 'pulim', 0, 0, { fome: CONFIG.PULIM.FOME_PARA_COMER - 2 });
+  planta(e, 0, 0, idadeAdulta);
+  tick(e, rngParado());
+  assert.equal(e.plantas.length, 1);
+  assert.equal(p.fome, CONFIG.PULIM.FOME_PARA_COMER - 1);
+
+  const c = cfg();
+  c.PULIM.FOME_PARA_COMER = 0;
+  const e2 = criarEstado(4, c);
+  animal(e2, 'pulim', 0, 0);
+  planta(e2, 0, 0, idadeAdulta);
+  tick(e2, rngParado());
+  assert.equal(e2.plantas.length, 0);
 });
 
 test('Pulim come planta adulta e zera a fome; broto e murcha alimentam menos', () => {

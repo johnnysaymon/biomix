@@ -205,13 +205,13 @@ export function tick(estado, rng) {
 
   const porCelula = agruparPorCelula(ordem, lado);
 
-  // 5. Predação: cada Rondor preda no máximo um Pulim da sua célula.
+  // 5. Predação: cada Rondor com fome preda no máximo um Pulim da sua célula. Rondor saciado poupa a presa.
   for (const grupo of porCelula.values()) {
     const pulins = grupo.filter((a) => a.especie === ESPECIE.PULIM && !a.morto);
     if (!pulins.length) continue;
     for (const r of grupo) {
       if (r.especie !== ESPECIE.RONDOR || !pulins.length) continue;
-      if (r.fome < cfg.RONDOR.FOME_PARA_CACAR) continue;
+      if (r.fome < cfg.RONDOR.FOME_PARA_COMER) continue;
       const presa = pulins.pop();
       presa.morto = 'predado';
       r.fome = 0;
@@ -219,7 +219,8 @@ export function tick(estado, rng) {
     }
   }
 
-  // 6. Alimentação: o Pulim mais faminto da célula come a planta. Brotos e plantas murchando alimentam menos.
+  // 6. Alimentação: o Pulim mais faminto da célula come a planta, se estiver com fome. Brotos e plantas murchando
+  //    alimentam menos.
   const plantasComidas = new Set();
   for (const [i, grupo] of porCelula) {
     const planta = plantaEm.get(i);
@@ -227,6 +228,7 @@ export function tick(estado, rng) {
     const pulins = grupo.filter((a) => a.especie === ESPECIE.PULIM && !a.morto);
     if (!pulins.length) continue;
     const comedor = pulins.reduce((m, a) => (a.fome > m.fome ? a : m));
+    if (comedor.fome < cfg.PULIM.FOME_PARA_COMER) continue;
     const nutricao = cfg.VERDELIM.NUTRICAO[fasePlanta(planta, cfg)] ?? 0;
     comedor.fome = Math.round(comedor.fome * (1 - nutricao));
     plantasComidas.add(planta);

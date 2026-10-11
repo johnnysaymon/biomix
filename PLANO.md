@@ -41,8 +41,8 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 ### 3.3 Encontros (quando dois personagens ficam na mesma célula)
 | Encontro | Resultado |
 |---|---|
-| Pulim + Verdelim | Pulim **come** a planta → planta some, fome do Pulim diminui conforme a fase da planta (ver 3.5). Pulim **não** pega semente |
-| Rondor + Pulim | Rondor **preda** o Pulim (filhote ou adulto) → Pulim morre, fome do Rondor zera |
+| Pulim + Verdelim | Pulim **com fome** (`FOME_PARA_COMER`) **come** a planta → planta some, fome do Pulim diminui conforme a fase da planta (ver 3.5). Pulim **não** pega semente |
+| Rondor + Pulim | Rondor **com fome** (`FOME_PARA_COMER`) **preda** o Pulim (filhote ou adulto) → Pulim morre, fome do Rondor zera |
 | Pulim adulto + Pulim adulto | Geram um **ovo de Pulim** numa célula vizinha livre |
 | Rondor adulto + Rondor adulto | Geram um **ovo de Rondor** numa célula vizinha livre |
 | Rondor + Verdelim | Rondor não come, mas **pega semente** se a planta for adulta (ver 3.4) |
@@ -103,7 +103,7 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 
 Todas as regras numéricas ficam centralizadas para facilitar o balanceamento e a adição de novas regras.
 
-Os valores atualizados ficam em [`js/config.js`](js/config.js). Grupos: `TAMANHOS_GRADE`, `TICKS_POR_DIA`, `TICK_MS`, `VELOCIDADES`, `VIZINHANCA`, `SEMENTE` (alcance 1–6), `VERDELIM` (crescimento, vida, murcha, nutrição por fase), `PULIM` e `RONDOR` (limite de fome, recarga de reprodução, tempo para chocar, maturidade; `RONDOR.FOME_PARA_CACAR`).
+Os valores atualizados ficam em [`js/config.js`](js/config.js). Grupos: `TAMANHOS_GRADE`, `TICKS_POR_DIA`, `TICK_MS`, `VELOCIDADES`, `VIZINHANCA`, `SEMENTE` (alcance 1–6), `VERDELIM` (crescimento, vida, murcha, nutrição por fase), `PULIM` e `RONDOR` (limite de fome, recarga de reprodução, tempo para chocar, maturidade, `FOME_PARA_COMER`).
 
 ## 5. Experiência mobile first
 
@@ -197,7 +197,7 @@ Nenhuma no momento. A dependência circular (só o Rondor espalha sementes) evit
 
 **Ajustes feitos no balanceamento** (valores em `config.js`): com os números iniciais do plano o bioma colapsava em ~20 dias; os valores atuais levam a ~40–60 dias com distribuições aleatórias.
 
-**Observação de balanceamento:** a principal causa de colapso é o Rondor predar todo Pulim que encontra, mesmo sem fome. Existe a opção `RONDOR.FOME_PARA_CACAR` (desligada = regra atual). Em simulações, com valor 40 o bioma passou a se sustentar por milhares de dias. Fica como sugestão de regra a decidir.
+**Observação de balanceamento:** a principal causa de colapso era o animal comer tudo o que encontrava, mesmo sem fome. Agora só come quem está com fome: `PULIM.FOME_PARA_COMER` (Pulim saciado não come a Verdelim) e `RONDOR.FOME_PARA_COMER` (Rondor saciado poupa o Pulim). Com 0 volta a regra antiga (come sempre). Em simulações, a regra antiga extinguia os animais em ~35 dias; com o modo ativo, a maioria das partidas passa de 2.000 dias.
 
 **Pendente:**
 
