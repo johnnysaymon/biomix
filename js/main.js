@@ -3,7 +3,7 @@ import { CONFIG } from './config.js';
 import { criarRng } from './rng.js';
 import { ESPECIES } from './entidades.js';
 import {
-  criarEstado, adicionar, removerEspecie, limparCelula, temEspecieNaCelula, distribuirAleatoriamente,
+  criarEstado, adicionar, removerEspecie, limparCelula, especieNaCelula, distribuirAleatoriamente,
   exportarMontagem, importarMontagem, contagem, contarVivos, diasSobrevividos, tick,
 } from './simulacao.js';
 import { Renderizador, desenharIcone } from './renderizador.js';
@@ -36,6 +36,7 @@ const jogo = {
   rng: criarRng(),
   montagem: [],
   ferramenta: 'verdelim',
+  aviso: '',
   acaoGesto: 'adicionar',
   velocidade: 0,
   acumulado: 0,
@@ -77,6 +78,7 @@ function abrirMontagem(lado, itens = armazenamento.ultimaMontagem(lado) ?? []) {
   jogo.lado = lado;
   jogo.estado = criarEstado(lado);
   importarMontagem(jogo.estado, itens);
+  jogo.aviso = '';
   definirModo('montagem');
   mostrarTela('jogo');
   ajustarTamanho();
@@ -101,14 +103,21 @@ function selecionarFerramenta(nome) {
   }
 }
 
-// Tocar numa célula vazia adiciona; tocar onde já existe a espécie remove. Arrastar repete a ação do primeiro toque.
+// Cada célula tem no máximo um personagem. Tocar numa célula vazia adiciona; tocar onde já está a espécie
+// selecionada remove; tocar sobre outra espécie a substitui. Arrastar repete a ação do primeiro toque,
+// mas ao adicionar só preenche células vazias (não apaga o que já foi colocado).
 function aoTocarCelula(x, y, inicioDoGesto) {
   if (jogo.modo !== 'montagem') return;
   const { estado, ferramenta } = jogo;
+  jogo.aviso = '';
   if (ferramenta === 'borracha') {
     limparCelula(estado, x, y);
   } else {
-    if (inicioDoGesto) jogo.acaoGesto = temEspecieNaCelula(estado, ferramenta, x, y) ? 'remover' : 'adicionar';
+    const atual = especieNaCelula(estado, x, y);
+    if (inicioDoGesto) {
+      jogo.acaoGesto = atual === ferramenta ? 'remover' : 'adicionar';
+      if (atual && atual !== ferramenta) limparCelula(estado, x, y);
+    }
     if (jogo.acaoGesto === 'remover') removerEspecie(estado, ferramenta, x, y);
     else adicionar(estado, ferramenta, x, y);
   }
@@ -169,7 +178,7 @@ function atualizarHud() {
   ui.dias.textContent = diasSobrevividos(jogo.estado);
   for (const especie of ESPECIES) $(`#pop-${especie}`).textContent = c[especie].total;
   if (jogo.modo === 'montagem') {
-    ui.detalhe.textContent = 'Toque para colocar ou tirar · arraste para pintar';
+    ui.detalhe.textContent = jogo.aviso || 'Um por célula · toque para colocar ou tirar · arraste para pintar';
   } else {
     const partes = [];
     if (c.verdelim.broto) partes.push(`${c.verdelim.broto} brotos`);
@@ -229,19 +238,23 @@ function ligarEventos() {
   });
 
   $('#btn-aleatorio').addEventListener('click', () => {
-    const area = jogo.lado * jogo.lado;
+    // Sugestão proporcional às células ainda vazias (cada célula aceita um personagem).
+    const livres = jogo.lado * jogo.lado - contarVivos(jogo.estado);
     const form = ui.dlgAleatorio.querySelector('form');
-    form.verdelim.value = Math.round(area * 0.3);
-    form.pulim.value = Math.round(area * 0.1);
-    form.rondor.value = Math.max(2, Math.round(area * 0.03));
-    for (const input of form.querySelectorAll('input')) input.max = area;
+    form.verdelim.value = Math.round(livres * 0.3);
+    form.pulim.value = Math.round(livres * 0.1);
+    form.rondor.value = Math.min(livres, Math.max(2, Math.round(livres * 0.03)));
+    for (const input of form.querySelectorAll('input')) input.max = livres;
     ui.dlgAleatorio.showModal();
   });
   ui.dlgAleatorio.addEventListener('close', () => {
     if (ui.dlgAleatorio.returnValue !== 'ok') return;
     const form = ui.dlgAleatorio.querySelector('form');
     const quantidades = Object.fromEntries(ESPECIES.map((e) => [e, Math.max(0, parseInt(form[e].value, 10) || 0)]));
-    distribuirAleatoriamente(jogo.estado, quantidades, criarRng());
+    const colocados = distribuirAleatoriamente(jogo.estado, quantidades, criarRng());
+    const pedido = ESPECIES.reduce((t, e) => t + quantidades[e], 0);
+    const total = ESPECIES.reduce((t, e) => t + colocados[e], 0);
+    jogo.aviso = total < pedido ? `Só couberam ${total} de ${pedido}: cada célula aceita um personagem.` : '';
     atualizarHud();
   });
 

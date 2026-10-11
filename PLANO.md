@@ -111,7 +111,7 @@ Os valores atualizados ficam em [`js/config.js`](js/config.js). Grupos: `TAMANHO
 - **Tela inicial**: escolha do tamanho da grade (Pequena 8×8, Média 12×12, Grande 16×16, Enorme 20×20). Trocar o tamanho durante a montagem pede confirmação, pois limpa a grade.
 - A grade ocupa `min(largura, altura disponível)` e se mantém **quadrada**; nas grades maiores, células pequenas ganham **zoom com pinça** e arraste para manter alvos de toque confortáveis (~32px).
 - **Barra de ferramentas inferior** (zona do polegar): selecionar Verdelim / Pulim / Rondor / Borracha, e botão **Iniciar**.
-- Toque numa célula = coloca o personagem selecionado; arrastar o dedo = "pintar" várias células. Sem limite de quantidade.
+- Toque numa célula = coloca o personagem selecionado; arrastar o dedo = "pintar" várias células. **Um personagem por célula**; sem outro limite de quantidade.
 - Personagens colocados na montagem começam como **adultos** (plantas adultas, animais adultos sem fome).
 - Opção "Distribuir aleatoriamente" (informa quantidades e o jogo posiciona).
 - Contadores de cada espécie (adultos, filhotes, ovos, brotos) visíveis durante o jogo.
@@ -178,7 +178,7 @@ biomix/
 
 Detalhes definidos na implementação (fáceis de mudar):
 
-- Na montagem, cada célula aceita no máximo **um de cada espécie**; tocar onde já existe a espécie a remove.
+- Na montagem, cada célula aceita **um único personagem**: tocar onde já está a espécie selecionada a remove; tocar sobre outra espécie a substitui; arrastar só preenche células vazias. A distribuição aleatória usa apenas células vazias. (Durante a partida os animais continuam podendo se encontrar na mesma célula.)
 - Cada Rondor preda **no máximo um Pulim por tick**; se vários Pulins estão numa célula com planta, **o mais faminto come**.
 - O Rondor pega semente ao **entrar** numa célula com Verdelim adulta (parado não pega); cada casa andada consome o alcance.
 

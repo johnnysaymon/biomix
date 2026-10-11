@@ -24,14 +24,15 @@ export const diasSobrevividos = (estado) => Math.floor(estado.tick / estado.conf
 
 // ---------- Montagem ----------
 
-export function temEspecieNaCelula(estado, especie, x, y) {
-  if (especie === ESPECIE.VERDELIM) return estado.plantas.some((p) => p.x === x && p.y === y);
-  return estado.animais.some((a) => a.especie === especie && a.x === x && a.y === y);
+// Espécie do personagem que ocupa a célula (ou null se estiver vazia).
+export function especieNaCelula(estado, x, y) {
+  const naCelula = (e) => e.x === x && e.y === y;
+  return (estado.plantas.find(naCelula) ?? estado.animais.find(naCelula) ?? estado.ovos.find(naCelula))?.especie ?? null;
 }
 
-// Coloca um personagem adulto na célula. Na montagem cada célula aceita no máximo um de cada espécie.
+// Coloca um personagem adulto na célula. Na montagem cada célula aceita no máximo um personagem.
 export function adicionar(estado, especie, x, y) {
-  if (temEspecieNaCelula(estado, especie, x, y)) return false;
+  if (especieNaCelula(estado, x, y)) return false;
   if (especie === ESPECIE.VERDELIM) estado.plantas.push(criarPlanta(estado, x, y, { adulta: true }));
   else estado.animais.push(criarAnimal(estado, especie, x, y, { adulto: true }));
   atualizarPicos(estado);
@@ -53,18 +54,23 @@ export function limparCelula(estado, x, y) {
   return antes !== estado.plantas.length + estado.animais.length + estado.ovos.length;
 }
 
+// Coloca os personagens em células vazias sorteadas. Retorna quantos de cada espécie couberam.
 export function distribuirAleatoriamente(estado, quantidades, rng) {
-  for (const especie of ESPECIES) {
-    const livres = [];
-    for (let y = 0; y < estado.lado; y++) {
-      for (let x = 0; x < estado.lado; x++) {
-        if (!temEspecieNaCelula(estado, especie, x, y)) livres.push([x, y]);
-      }
+  const livres = [];
+  for (let y = 0; y < estado.lado; y++) {
+    for (let x = 0; x < estado.lado; x++) {
+      if (!especieNaCelula(estado, x, y)) livres.push([x, y]);
     }
-    rng.embaralhar(livres);
-    const n = Math.min(quantidades[especie] ?? 0, livres.length);
-    for (let i = 0; i < n; i++) adicionar(estado, especie, livres[i][0], livres[i][1]);
   }
+  rng.embaralhar(livres);
+  const pedidos = ESPECIES.flatMap((especie) => Array(Math.max(0, quantidades[especie] ?? 0)).fill(especie));
+  rng.embaralhar(pedidos); // se faltar espaço, o corte fica proporcional entre as espécies
+  const colocados = { verdelim: 0, pulim: 0, rondor: 0 };
+  pedidos.slice(0, livres.length).forEach((especie, i) => {
+    adicionar(estado, especie, livres[i][0], livres[i][1]);
+    colocados[especie]++;
+  });
+  return colocados;
 }
 
 // Lista serializável da montagem, para salvar e repetir a partida.

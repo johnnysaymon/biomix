@@ -4,7 +4,7 @@ import { CONFIG } from '../js/config.js';
 import { criarRng } from '../js/rng.js';
 import { criarPlanta, criarAnimal, criarOvo, fasePlanta } from '../js/entidades.js';
 import {
-  criarEstado, adicionar, limparCelula, tick, contagem, contarVivos, distribuirAleatoriamente,
+  criarEstado, adicionar, limparCelula, especieNaCelula, tick, contagem, contarVivos, distribuirAleatoriamente,
   exportarMontagem, importarMontagem, diasSobrevividos,
 } from '../js/simulacao.js';
 
@@ -32,28 +32,50 @@ const planta = (estado, x, y, idade) => {
   return p;
 };
 
-test('montagem aceita um de cada espécie por célula e começa com adultos', () => {
+test('montagem aceita apenas um personagem por célula e começa com adultos', () => {
   const e = criarEstado(8);
   assert.equal(adicionar(e, 'pulim', 2, 2), true);
   assert.equal(adicionar(e, 'pulim', 2, 2), false);
-  assert.equal(adicionar(e, 'rondor', 2, 2), true);
-  assert.equal(adicionar(e, 'verdelim', 2, 2), true);
+  assert.equal(adicionar(e, 'rondor', 2, 2), false);
+  assert.equal(adicionar(e, 'verdelim', 2, 2), false);
+  assert.equal(especieNaCelula(e, 2, 2), 'pulim');
+  assert.equal(adicionar(e, 'verdelim', 3, 2), true);
+  assert.equal(adicionar(e, 'rondor', 4, 2), true);
   const c = contagem(e);
   assert.equal(c.pulim.adultos, 1);
   assert.equal(c.rondor.adultos, 1);
   assert.equal(c.verdelim.adulta, 1);
   assert.equal(limparCelula(e, 2, 2), true);
-  assert.equal(contarVivos(e), 0);
+  assert.equal(especieNaCelula(e, 2, 2), null);
+  assert.equal(contarVivos(e), 2);
 });
 
-test('distribuição aleatória respeita as quantidades e exportar/importar recria a montagem', () => {
+test('distribuição aleatória usa só células vazias e exportar/importar recria a montagem', () => {
   const e = criarEstado(8);
-  distribuirAleatoriamente(e, { verdelim: 10, pulim: 5, rondor: 2 }, criarRng(3));
+  adicionar(e, 'pulim', 0, 0);
+  const colocados = distribuirAleatoriamente(e, { verdelim: 10, pulim: 5, rondor: 2 }, criarRng(3));
+  assert.deepEqual(colocados, { verdelim: 10, pulim: 5, rondor: 2 });
   const c = contagem(e);
-  assert.deepEqual([c.verdelim.total, c.pulim.total, c.rondor.total], [10, 5, 2]);
+  assert.deepEqual([c.verdelim.total, c.pulim.total, c.rondor.total], [10, 6, 2]);
+  const ocupadas = new Set(exportarMontagem(e).map(([, x, y]) => `${x},${y}`));
+  assert.equal(ocupadas.size, 18, 'nenhuma célula pode ter dois personagens');
   const copia = criarEstado(8);
   importarMontagem(copia, exportarMontagem(e));
   assert.deepEqual(exportarMontagem(copia), exportarMontagem(e));
+});
+
+test('distribuição aleatória para quando a grade enche', () => {
+  const e = criarEstado(3);
+  const colocados = distribuirAleatoriamente(e, { verdelim: 9, pulim: 9, rondor: 9 }, criarRng(5));
+  assert.equal(colocados.verdelim + colocados.pulim + colocados.rondor, 9);
+  assert.equal(contarVivos(e), 9);
+});
+
+test('importar montagem antiga com dois personagens na mesma célula mantém só o primeiro', () => {
+  const e = criarEstado(4);
+  importarMontagem(e, [['verdelim', 1, 1], ['pulim', 1, 1], ['rondor', 1, 1]]);
+  assert.equal(contarVivos(e), 1);
+  assert.equal(especieNaCelula(e, 1, 1), 'verdelim');
 });
 
 test('animais andam no máximo uma casa por tick e não saem da grade', () => {
