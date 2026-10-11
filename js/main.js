@@ -133,6 +133,9 @@ function iniciarPartida() {
   importarMontagem(jogo.estado, jogo.montagem);
   jogo.rng = criarRng();
   jogo.acumulado = 0;
+  // Toda partida nova começa em 1×, independentemente da velocidade da anterior.
+  jogo.velocidade = 0;
+  ui.btnVelocidade.textContent = `${CONFIG.VELOCIDADES[jogo.velocidade]}×`;
   definirModo('jogando');
 }
 
