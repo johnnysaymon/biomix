@@ -41,8 +41,8 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 ### 3.3 Encontros (quando dois personagens ficam na mesma célula)
 | Encontro | Resultado |
 |---|---|
-| Pulim + Verdelim | Pulim **com fome** (`FOME_PARA_COMER`) **come** a planta → planta some, fome do Pulim diminui conforme a fase da planta (ver 3.5). Pulim **não** pega semente |
-| Rondor + Pulim | Rondor **com fome** (`FOME_PARA_COMER`) **preda** o Pulim (filhote ou adulto) → Pulim morre, fome do Rondor zera |
+| Pulim + Verdelim | Pulim **come** a planta → planta some, fome do Pulim diminui conforme a fase da planta (ver 3.5). Pulim **não** pega semente |
+| Rondor + Pulim | Rondor **preda** o Pulim (filhote ou adulto) → Pulim morre, fome do Rondor zera |
 | Pulim adulto + Pulim adulto | Geram um **ovo de Pulim** numa célula vizinha livre |
 | Rondor adulto + Rondor adulto | Geram um **ovo de Rondor** numa célula vizinha livre |
 | Rondor + Verdelim | Rondor não come, mas **pega semente** se a planta for adulta (ver 3.4) |
@@ -197,7 +197,7 @@ Nenhuma no momento. A dependência circular (só o Rondor espalha sementes) evit
 
 **Ajustes feitos no balanceamento** (valores em `config.js`): com os números iniciais do plano o bioma colapsava em ~20 dias; os valores atuais levam a ~40–60 dias com distribuições aleatórias.
 
-**Observação de balanceamento:** a principal causa de colapso era o animal comer tudo o que encontrava, mesmo sem fome. Agora só come quem está com fome: `PULIM.FOME_PARA_COMER` (Pulim saciado não come a Verdelim) e `RONDOR.FOME_PARA_COMER` (Rondor saciado poupa o Pulim). Com 0 volta a regra antiga (come sempre). Em simulações, a regra antiga extinguia os animais em ~35 dias; com o modo ativo, a maioria das partidas passa de 2.000 dias.
+**Observação de balanceamento:** a principal causa de colapso é o animal comer tudo o que encontra, mesmo sem fome. Existe a opção `FOME_PARA_COMER` em `PULIM` e `RONDOR` (0 = desligada, regra atual). Em simulações, a regra atual extinguiu os animais em ~35 dias; com Pulim 20 e Rondor 40, todas as partidas passaram de 2.000 dias. Fica como sugestão de regra a decidir.
 
 **Pendente:**
 

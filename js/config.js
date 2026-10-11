@@ -18,13 +18,14 @@ export const CONFIG = {
     NUTRICAO: { adulta: 1.0, murchando: 0.5, broto: 0.4 }, // fração da fome removida ao ser comida
   },
   // Fome mínima para um animal comer (Pulim come Verdelim, Rondor preda Pulim). Abaixo dela o animal está
-  // saciado e ignora a comida da célula. 0 = come sempre que encontra comida.
-  PULIM: { LIMITE_FOME: 70, RECARGA_REPRODUCAO: 10, TICKS_PARA_CHOCAR: 10, TEMPO_MATURIDADE: 15, FOME_PARA_COMER: 20 },
+  // saciado e ignora a comida da célula. 0 = come sempre que encontra comida (regra atual).
+  // Valores como Pulim 20 e Rondor 40 estabilizam muito o bioma.
+  PULIM: { LIMITE_FOME: 70, RECARGA_REPRODUCAO: 10, TICKS_PARA_CHOCAR: 10, TEMPO_MATURIDADE: 15, FOME_PARA_COMER: 0 },
   RONDOR: {
     LIMITE_FOME: 110,
     RECARGA_REPRODUCAO: 35,
     TICKS_PARA_CHOCAR: 25,
     TEMPO_MATURIDADE: 40,
-    FOME_PARA_COMER: 40,
+    FOME_PARA_COMER: 0,
   },
 };
