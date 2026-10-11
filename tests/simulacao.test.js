@@ -245,3 +245,38 @@ test('a mesma semente gera a mesma partida', () => {
   };
   assert.deepEqual(rodar(), rodar());
 });
+
+test('filhote que não come até a idade adulta morre de fome; o que comeu vira adulto', () => {
+  const { TEMPO_MATURIDADE } = CONFIG.PULIM;
+  const e = criarEstado(3);
+  const faminto = animal(e, 'pulim', 0, 0, { idade: TEMPO_MATURIDADE - 2, fome: TEMPO_MATURIDADE - 2, comeu: false });
+  const alimentado = animal(e, 'pulim', 2, 2, { idade: TEMPO_MATURIDADE - 2, fome: 0, comeu: false });
+  planta(e, 2, 2, CONFIG.VERDELIM.TEMPO_CRESCIMENTO);
+  tick(e, rngParado());
+  assert.equal(alimentado.comeu, true);
+  assert.deepEqual(e.animais, [faminto, alimentado]);
+  tick(e, rngParado());
+  assert.equal(faminto.morto, 'fome');
+  assert.deepEqual(e.animais, [alimentado]);
+  assert.equal(contagem(e).pulim.adultos, 1);
+});
+
+test('filhote que chega à idade adulta sem comer não se reproduz antes de morrer', () => {
+  const { TEMPO_MATURIDADE } = CONFIG.RONDOR;
+  const e = criarEstado(3);
+  animal(e, 'rondor', 1, 1, { idade: TEMPO_MATURIDADE - 1, fome: TEMPO_MATURIDADE - 1, comeu: false });
+  animal(e, 'rondor', 1, 1, { idade: TEMPO_MATURIDADE - 1, fome: TEMPO_MATURIDADE - 1, comeu: false });
+  tick(e, rngParado());
+  assert.equal(e.ovos.length, 0);
+  assert.equal(e.animais.length, 0);
+});
+
+test('só uma espécie de animal, sem comida, não se mantém para sempre', () => {
+  for (const especie of ['pulim', 'rondor']) {
+    const rng = criarRng(5);
+    const e = criarEstado(12);
+    distribuirAleatoriamente(e, { [especie]: 20 }, rng);
+    while (!e.fim && e.tick < 5000) tick(e, rng);
+    assert.equal(e.fim, true, `${especie} sozinho deveria se extinguir`);
+  }
+});

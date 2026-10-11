@@ -28,6 +28,7 @@ export function criarAnimal(estado, especie, x, y, { adulto = false } = {}) {
     olhando: 1,
     idade: adulto ? configAnimal(estado.config, especie).TEMPO_MATURIDADE : 0,
     fome: 0,
+    comeu: adulto, // filhote precisa comer ao menos uma vez antes da maturidade, senão morre
     recarga: 0,
     semente: null, // { restante } — apenas Rondor
     morto: null,
@@ -47,8 +48,14 @@ export function fasePlanta(planta, config) {
   return 'morta';
 }
 
-export const ehAdulto = (animal, config) => animal.idade >= configAnimal(config, animal.especie).TEMPO_MATURIDADE;
+// Só vira adulto o filhote que já se alimentou; o que chega à idade adulta sem comer morre de fome (ver limiteFome).
+export const ehAdulto = (animal, config) =>
+  animal.comeu && animal.idade >= configAnimal(config, animal.especie).TEMPO_MATURIDADE;
 
-export const limiteFome = (animal, config) => configAnimal(config, animal.especie).LIMITE_FOME;
+// Filhote que ainda não comeu tem como limite o tempo de maturidade (a fome dele é igual à idade).
+export function limiteFome(animal, config) {
+  const { LIMITE_FOME, TEMPO_MATURIDADE } = configAnimal(config, animal.especie);
+  return animal.comeu ? LIMITE_FOME : Math.min(LIMITE_FOME, TEMPO_MATURIDADE);
+}
 
 export { configAnimal };

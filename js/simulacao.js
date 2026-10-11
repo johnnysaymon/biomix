@@ -218,6 +218,7 @@ export function tick(estado, rng) {
       const presa = pulins.pop();
       presa.morto = 'predado';
       r.fome = 0;
+      r.comeu = true;
       estado.eventos.push({ tipo: 'preda', x: r.x, y: r.y, presa: retrato(presa, cfg) });
     }
   }
@@ -234,6 +235,7 @@ export function tick(estado, rng) {
     if (comedor.fome < cfg.PULIM.FOME_PARA_COMER) continue;
     const nutricao = cfg.VERDELIM.NUTRICAO[fasePlanta(planta, cfg)] ?? 0;
     comedor.fome = Math.round(comedor.fome * (1 - nutricao));
+    comedor.comeu = true;
     plantasComidas.add(planta);
     ocupadas.delete(i);
     estado.eventos.push({ tipo: 'come', x: planta.x, y: planta.y });
@@ -278,7 +280,7 @@ export function tick(estado, rng) {
     return false;
   });
 
-  // 10. Mortes por fome. A semente de um Rondor que morre brota onde ele estava.
+  // 10. Mortes por fome (inclui o filhote que chegou à idade adulta sem ter comido). A semente de um Rondor que morre brota onde ele estava.
   for (const a of estado.animais) {
     if (a.morto || a.fome < limiteFome(a, cfg)) continue;
     a.morto = 'fome';

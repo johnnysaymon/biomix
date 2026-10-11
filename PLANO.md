@@ -78,7 +78,7 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 
 ### 3.6 Ciclo de vida dos animais
 - **Ovo** → choca após `TICKS_PARA_CHOCAR`, nascendo um **filhote**.
-- **Filhote** → move-se, come, sente fome, pode ser predado (Pulim) e carrega sementes (Rondor), mas **não se reproduz**. Após `TEMPO_MATURIDADE` vira **adulto**.
+- **Filhote** → move-se, come, sente fome, pode ser predado (Pulim) e carrega sementes (Rondor), mas **não se reproduz**. Após `TEMPO_MATURIDADE` vira **adulto**, desde que tenha **comido ao menos uma vez** (Pulim comendo Verdelim, Rondor predando Pulim). Filhote que chega à idade adulta sem ter comido **morre de fome** — assim uma única espécie sem comida não se mantém para sempre.
 - **Fome**: contador que aumenta 1 por tick e zera ao comer. Ao atingir `LIMITE_FOME` (diferente para Pulim e Rondor), o animal **morre**.
 
 ### 3.7 Fim de jogo
