@@ -1,3 +1,5 @@
+<p align="center"><img src="img/logo.svg" alt="Biomix" width="360"></p>
+
 # Biomix
 
 Jogo web de sobrevivência de um bioma, feito apenas com **HTML, CSS e JavaScript** (sem frameworks e sem build), pensado primeiro para celular.

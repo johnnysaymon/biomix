@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Biomix">
+  <!-- Símbolo do Biomix: o broto do Verdelim entre a cauda do Rondor e a orelha do Pulim -->
+  <circle cx="64" cy="64" r="60" fill="#9fd38a" stroke="#2f7d3d" stroke-width="6"/>
+  <ellipse cx="64" cy="106" rx="40" ry="8" fill="#7fbf6c"/>
+  <g stroke="#2f3b2f" stroke-width="3" stroke-linejoin="round">
+    <!-- Cauda do Rondor, com a semente que ele carrega -->
+    <path d="M58 106 C38 108 18 92 17 70 C16 52 22 38 32 26 C44 38 52 54 55 70 C58 84 60 96 58 106 Z" fill="#d8743a"/>
+    <path d="M32 26 C26 32 20 42 18 54 C22 50 26 51 29 47 C32 50 37 48 40 43 C38 37 36 31 32 26 Z" fill="#f7e6c6"/>
+    <circle cx="40" cy="80" r="5" fill="#62bf5a" stroke-width="2.5"/>
+    <!-- Orelha do Pulim -->
+    <path d="M70 106 C64 82 74 50 98 28 C112 52 104 86 84 106 Z" fill="#c7b3ea"/>
+    <path d="M77 98 C74 80 82 58 96 42 C102 60 98 80 85 98 Z" fill="#f3b6d0" stroke="none"/>
+    <!-- Broto do Verdelim -->
+    <path d="M64 106 C63 88 62 72 64 58" fill="none" stroke="#3f9a4a" stroke-width="5" stroke-linecap="round"/>
+    <path d="M63 64 C58 52 50 46 40 46 C44 58 52 64 63 64 Z" fill="#62bf5a"/>
+    <path d="M64 60 C67 46 76 38 88 36 C85 50 76 58 64 60 Z" fill="#62bf5a"/>
+  </g>
+</svg>

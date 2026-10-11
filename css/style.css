@@ -36,7 +36,6 @@ button, input { font: inherit; color: inherit; }
 .tela.ativa { display: flex; flex-direction: column; }
 
 .icone { width: 28px; height: 28px; display: block; flex: none; }
-.icone.grande { width: 72px; height: 72px; }
 
 /* ---------- Tela inicial ---------- */
 .inicio {
@@ -48,9 +47,18 @@ button, input { font: inherit; color: inherit; }
   text-align: center;
 }
 
-.logo { display: flex; justify-content: center; gap: 4px; }
+.logo { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 4px 0 8px; }
+.logo img { width: 88px; height: 88px; flex: none; }
 
-h1 { margin: 8px 0 4px; font-size: 2.4rem; color: var(--primaria-escura); letter-spacing: 0.5px; }
+h1 {
+  margin: 0;
+  font-family: ui-rounded, "Nunito", "Arial Rounded MT Bold", system-ui, sans-serif;
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--primaria-escura);
+}
+h1 .mix { color: #d8743a; }
 
 .subtitulo { margin: 0 0 24px; color: var(--texto-suave); }
 

@@ -6,10 +6,12 @@
   <meta name="theme-color" content="#2f6b3a">
   <meta name="description" content="Biomix: monte um bioma com plantas, presas e predadores e veja quantos dias ele sobrevive.">
   <title>Biomix</title>
+  <link rel="icon" type="image/svg+xml" href="img/logo-icone.svg?v=1.3.0">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png?v=1.3.0">
   <script>
     // Versão do jogo: entra na URL de cada arquivo (?v=) para o navegador não usar cópias antigas do cache.
     // Aumente a VERSAO a cada alteração publicada e mantenha MODULOS igual aos arquivos de js/ (ver CLAUDE.md).
-    const VERSAO = '1.2.0';
+    const VERSAO = '1.3.0';
     const MODULOS = [
       'armazenamento', 'config', 'entidades', 'entrada', 'grade', 'main', 'renderizador', 'rng', 'simulacao',
     ];
@@ -28,12 +30,10 @@
     <!-- Tela inicial: escolha do tamanho da grade -->
     <section id="tela-inicio" class="tela ativa" aria-labelledby="titulo">
       <div class="inicio">
-        <div class="logo" aria-hidden="true">
-          <canvas class="icone grande" data-icone="verdelim"></canvas>
-          <canvas class="icone grande" data-icone="pulim"></canvas>
-          <canvas class="icone grande" data-icone="rondor"></canvas>
+        <div class="logo">
+          <img src="img/logo-icone.svg?v=1.3.0" alt="" width="88" height="88">
+          <h1 id="titulo">Bio<span class="mix">mix</span></h1>
         </div>
-        <h1 id="titulo">Biomix</h1>
         <p class="subtitulo">Monte o seu bioma e veja quantos dias ele sobrevive.</p>
 
         <h2>Tamanho do bioma</h2>
