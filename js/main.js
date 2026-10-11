@@ -304,6 +304,7 @@ function desenharIcones() {
   for (const c of document.querySelectorAll('canvas[data-icone]')) desenharIcone(c, c.dataset.icone);
 }
 
+$('#versao').textContent = `versão ${document.documentElement.dataset.versao}`;
 ligarEventos();
 irParaInicio();
 desenharIcones();

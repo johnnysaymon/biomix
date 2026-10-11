@@ -89,6 +89,7 @@ h2 { font-size: 1.05rem; margin: 0 0 12px; }
 .como-jogar summary { cursor: pointer; font-weight: 600; min-height: 32px; display: flex; align-items: center; }
 .como-jogar ul { padding-left: 18px; margin: 8px 0 0; line-height: 1.5; }
 .como-jogar li + li { margin-top: 6px; }
+.versao { margin: 16px 0 0; font-size: 0.8rem; color: var(--texto-suave); text-align: center; }
 
 /* ---------- Tela do jogo ---------- */
 .hud {

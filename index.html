@@ -6,7 +6,22 @@
   <meta name="theme-color" content="#2f6b3a">
   <meta name="description" content="Biomix: monte um bioma com plantas, presas e predadores e veja quantos dias ele sobrevive.">
   <title>Biomix</title>
-  <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Versão do jogo: entra na URL de cada arquivo (?v=) para o navegador não usar cópias antigas do cache.
+    // Aumente a VERSAO a cada alteração publicada e mantenha MODULOS igual aos arquivos de js/ (ver CLAUDE.md).
+    const VERSAO = '1.0.0';
+    const MODULOS = [
+      'armazenamento', 'config', 'entidades', 'entrada', 'grade', 'main', 'renderizador', 'rng', 'simulacao',
+    ];
+    document.documentElement.dataset.versao = VERSAO;
+    const mapa = document.createElement('script');
+    mapa.type = 'importmap';
+    mapa.textContent = JSON.stringify({
+      imports: Object.fromEntries(MODULOS.map((m) => [`./js/${m}.js`, `./js/${m}.js?v=${VERSAO}`])),
+    });
+    document.head.append(mapa);
+    document.write(`<link rel="stylesheet" href="css/style.css?v=${VERSAO}">`);
+  </script>
 </head>
 <body>
   <main id="app">
@@ -34,6 +49,8 @@
             <li>Quem passa fome por muito tempo morre. O bioma acaba quando não sobra nenhum ser vivo.</li>
           </ul>
         </details>
+
+        <p id="versao" class="versao"></p>
       </div>
     </section>
 
@@ -124,6 +141,6 @@
     </div>
   </dialog>
 
-  <script type="module" src="js/main.js"></script>
+  <script type="module">import './js/main.js';</script>
 </body>
 </html>

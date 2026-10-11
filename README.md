@@ -25,6 +25,12 @@ python3 -m http.server 8000
 npm test   # usa o executor de testes nativo do Node (node --test), sem dependências
 ```
 
+## Versão
+
+A versão fica na constante `VERSAO` do `index.html` e é acrescentada (`?v=`) à URL do CSS e de todos os módulos
+JavaScript, para o navegador não usar cópias antigas do cache após uma publicação. Ela aparece na tela inicial.
+**Aumente a versão a cada alteração do jogo**; as regras estão em [`CLAUDE.md`](CLAUDE.md).
+
 ## Estrutura
 
 | Arquivo | Papel |
