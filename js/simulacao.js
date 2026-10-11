@@ -120,6 +120,9 @@ function atualizarPicos(estado) {
 
 // ---------- Simulação ----------
 
+// Dados de um animal que acabou de morrer, para a animação desenhar o corpo onde ele estava.
+const retrato = (a, cfg) => ({ especie: a.especie, px: a.px, py: a.py, olhando: a.olhando, filhote: !ehAdulto(a, cfg) });
+
 // Célula livre = sem planta e sem ovo (animais podem estar nela).
 function celulaLivre(ocupadas, x, y, lado) {
   return !ocupadas.has(indice(x, y, lado));
@@ -215,7 +218,7 @@ export function tick(estado, rng) {
       const presa = pulins.pop();
       presa.morto = 'predado';
       r.fome = 0;
-      estado.eventos.push({ tipo: 'preda', x: r.x, y: r.y });
+      estado.eventos.push({ tipo: 'preda', x: r.x, y: r.y, presa: retrato(presa, cfg) });
     }
   }
 
@@ -279,7 +282,7 @@ export function tick(estado, rng) {
   for (const a of estado.animais) {
     if (a.morto || a.fome < limiteFome(a, cfg)) continue;
     a.morto = 'fome';
-    estado.eventos.push({ tipo: 'morre', x: a.x, y: a.y, especie: a.especie });
+    estado.eventos.push({ tipo: 'morre', x: a.x, y: a.y, ...retrato(a, cfg) });
     if (a.semente) {
       a.semente = null;
       plantarSemente(estado, ocupadas, a.x, a.y, rng);

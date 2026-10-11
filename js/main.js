@@ -148,7 +148,7 @@ function avancar(dt) {
   let passos = 0;
   while (jogo.acumulado >= msPorTick && passos < 8) {
     tick(jogo.estado, jogo.rng);
-    renderizador.registrarEventos(jogo.estado.eventos, performance.now());
+    renderizador.registrarEventos(jogo.estado.eventos, performance.now(), msPorTick);
     jogo.acumulado -= msPorTick;
     passos++;
     if (jogo.estado.fim) {
