@@ -310,12 +310,8 @@ function ligarEventos() {
     })) abrirMontagem(jogo.lado, jogo.montagem);
   });
 
+  // Jogar de novo volta para a montagem com o bioma anterior, para o jogador ajustar antes de iniciar.
   $('#btn-repetir').addEventListener('click', () => {
-    ui.dlgFim.close();
-    abrirMontagem(jogo.lado, jogo.montagem);
-    iniciarPartida();
-  });
-  $('#btn-editar').addEventListener('click', () => {
     ui.dlgFim.close();
     abrirMontagem(jogo.lado, jogo.montagem);
   });
