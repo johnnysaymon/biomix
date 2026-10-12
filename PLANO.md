@@ -43,13 +43,14 @@ O objetivo do jogador é montar um ecossistema equilibrado e fazer o bioma sobre
 |---|---|
 | Pulim + Verdelim | Pulim **come** a planta → planta some, fome do Pulim diminui conforme a fase da planta (ver 3.5). Pulim **não** pega semente |
 | Rondor + Pulim | Rondor **preda** o Pulim (filhote ou adulto) → Pulim morre, fome do Rondor zera |
-| Pulim adulto + Pulim adulto | Geram um **ovo de Pulim** numa célula vizinha livre |
-| Rondor adulto + Rondor adulto | Geram um **ovo de Rondor** numa célula vizinha livre |
+| Pulim adulto + Pulim adulto | Geram um **ovo de Pulim** na célula do encontro |
+| Rondor adulto + Rondor adulto | Geram um **ovo de Rondor** na célula do encontro |
 | Rondor + Verdelim | Rondor não come, mas **pega semente** se a planta for adulta (ver 3.4) |
 | Qualquer animal + ovo | **Nada acontece** — ovos não podem ser comidos |
 
 - "Encontrar" = **ocupar a mesma célula** após o movimento.
 - Só **adultos** se reproduzem. Após gerar um ovo, cada animal entra em **recarga de reprodução**.
+- O ovo só é posto se a célula do encontro estiver livre (sem planta nem ovo); senão o par não gera ovo e não entra em recarga. Sai no máximo um ovo por célula a cada tick.
 
 ### 3.4 Sementes e brotamento (plantas não se reproduzem sozinhas)
 - **Apenas o Rondor espalha sementes.** Isso fecha um ciclo de dependência entre as três espécies:

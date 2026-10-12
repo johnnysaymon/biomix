@@ -242,20 +242,18 @@ export function tick(estado, rng) {
   }
   if (plantasComidas.size) estado.plantas = estado.plantas.filter((p) => !plantasComidas.has(p));
 
-  // 7. Reprodução: pares de adultos da mesma espécie, fora da recarga, geram um ovo numa vizinha livre.
-  for (const grupo of porCelula.values()) {
+  // 7. Reprodução: um par de adultos da mesma espécie, fora da recarga, põe um ovo na célula do encontro. A célula
+  //    precisa estar livre (sem planta nem ovo), então sai no máximo um ovo por célula.
+  for (const [i, grupo] of porCelula) {
     for (const especie of [ESPECIE.PULIM, ESPECIE.RONDOR]) {
+      if (ocupadas.has(i)) break;
       const aptos = grupo.filter((a) => a.especie === especie && !a.morto && a.recarga === 0 && ehAdulto(a, cfg));
-      while (aptos.length >= 2) {
-        const pai = aptos.pop();
-        const mae = aptos.pop();
-        const destino = vizinhaLivre(estado, ocupadas, pai.x, pai.y, rng);
-        if (!destino) break;
-        estado.ovos.push(criarOvo(estado, especie, destino[0], destino[1]));
-        ocupadas.add(indice(destino[0], destino[1], lado));
-        pai.recarga = mae.recarga = configAnimal(cfg, especie).RECARGA_REPRODUCAO;
-        estado.eventos.push({ tipo: 'ovo', x: destino[0], y: destino[1], especie });
-      }
+      if (aptos.length < 2) continue;
+      const [pai, mae] = aptos;
+      estado.ovos.push(criarOvo(estado, especie, pai.x, pai.y));
+      ocupadas.add(i);
+      pai.recarga = mae.recarga = configAnimal(cfg, especie).RECARGA_REPRODUCAO;
+      estado.eventos.push({ tipo: 'ovo', x: pai.x, y: pai.y, especie });
     }
   }
 

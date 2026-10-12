@@ -175,7 +175,7 @@ test('Rondor que morre de fome com semente faz ela brotar onde morreu', () => {
   assert.deepEqual([e.plantas[0].x, e.plantas[0].y], [2, 2]);
 });
 
-test('adultos da mesma espécie geram ovo em vizinha livre e entram em recarga; filhotes não se reproduzem', () => {
+test('adultos da mesma espécie geram ovo na célula do encontro e entram em recarga; filhotes não se reproduzem', () => {
   const e = criarEstado(3);
   const a = animal(e, 'pulim', 1, 1);
   const b = animal(e, 'pulim', 1, 1);
@@ -184,9 +184,23 @@ test('adultos da mesma espécie geram ovo em vizinha livre e entram em recarga; 
   tick(e, rngParado());
   assert.equal(e.ovos.length, 1);
   assert.equal(e.ovos[0].especie, 'pulim');
-  assert.notDeepEqual([e.ovos[0].x, e.ovos[0].y], [1, 1]);
+  assert.deepEqual([e.ovos[0].x, e.ovos[0].y], [1, 1]);
   assert.equal(a.recarga, CONFIG.PULIM.RECARGA_REPRODUCAO);
   assert.equal(b.recarga, CONFIG.PULIM.RECARGA_REPRODUCAO);
+});
+
+test('par de adultos em célula com planta ou ovo não gera ovo nem entra em recarga', () => {
+  const e = criarEstado(3);
+  e.ovos.push(criarOvo(e, 'pulim', 1, 1));
+  const a = animal(e, 'rondor', 1, 1);
+  const b = animal(e, 'rondor', 1, 1);
+  planta(e, 0, 0, 0);
+  animal(e, 'rondor', 0, 0);
+  animal(e, 'rondor', 0, 0);
+  tick(e, rngParado());
+  assert.equal(e.ovos.length, 1);
+  assert.equal(a.recarga, 0);
+  assert.equal(b.recarga, 0);
 });
 
 test('ovo não é comido e choca um filhote após o tempo definido', () => {
